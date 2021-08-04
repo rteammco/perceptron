@@ -3,7 +3,7 @@
 <head>
   <style>
     #PerceptronCanvas {
-      background-color: #000000;
+      border: 3px solid black;
     }
 
     #PerceptronBlueClassButton {
@@ -31,15 +31,20 @@
 
   <script type="text/javascript">
     // Global variables:
-    const RADIUS = 3;
+    const DATA_POINT_RENDER_RADIUS = 4;
     const LEARNING_RATE = 0.5;
-    let selected = 1;
-    const points = [];
-    let percept = null;
-    let canvas = null;
-    let ctx = null;
+    const BLUE_CLASS_NAME = 'BLUE;'
+    const RED_CLASS_NAME = 'RED';
+
+    let currentlySelectedTrainingClass = BLUE_CLASS_NAME;
+    const dataPoints = [];
+
+    function getCanvasObject() {
+      return document.getElementById("PerceptronCanvas");
+    }
 
     function getCanvasDimensions() {
+      const canvas = getCanvasObject();
       if (canvas != null) {
         return { canvasWidth: canvas.width, canvasHeight: canvas.height };
       } else {
@@ -47,11 +52,20 @@
       }
     }
 
-    class PerceptronInput {
-      constructor(xCoordinate, yCoordinate, inputClass) {
+    class PerceptronDataPoint {
+      constructor(xCoordinate, yCoordinate, dataClass) {
         this._xCoordinate = xCoordinate;
         this._yCoordinate = yCoordinate;
-        this._inputClass = inputClass;
+        this._dataClass = dataClass;
+      }
+      getDataClass() {
+        return this._dataClass;
+      }
+      getXCoordinate() {
+        return this._xCoordinate;
+      }
+      getYCoordinate() {
+        return this._yCoordinate;
       }
       // Returns the coordinates such that they are normalized between -1 and 1
       // relative to their pixel position on the 2D canvas.
@@ -74,9 +88,10 @@
         this._wY = 1;
       }
 
-      run() {
-        const inp = new PerceptronInput(10, 10, 1);
-        console.log('running', inp.getNormalizedInput());
+      classify(dataPoint) {
+        const sum = this._bias + (this._wX * dataPoint.x) + (this._wY * dataPoint.y);
+        const output = 1 / (1 + Math.exp(-sum)); // sigmoid
+        return output;
       }
 
       // // compute an output value for the given input (tuple of x and y values)
@@ -111,118 +126,27 @@
       //     this.wY = 1;
       // }
     }
+    const perceptron = new Perceptron();
 
-    const x = new Perceptron();
-    x.run();
-
-    function onCanvasClicked(event) {
-      console.log('clicked canvas', event);
-    }
-
-    function onControlButtonClicked(buttonName) {
-      console.log(buttonName);
-    }
-
-    function onLearningRateChanged(event) {
-      console.log('learning rate changed', event);
-    }
-
-// // get the canvas and draw it for the first time
-// $(document).ready(function() {
-//     // set default values
-//     document.getElementById("learning_rate_box").value = LEARNING_RATE;
-//     // set up the canvas and perceptron
-//     canvas = document.getElementById("perceptron_canvas");
-//     ctx = canvas.getContext("2d");
-//     percept = new Perceptron();
-//     drawAll();
-// });
-
-
-// // set the current class to positive (dots of that class will be added)
-// function setClass1() {
-//     selected = 1;
-//     $("#class1_button").addClass("selected_button");
-//     $("#class2_button").removeClass("selected_button");
-// }
-
-
-// // set the current class to negative (dots of that class will be added)
-// function setClass2() {
-//     selected = -1;
-//     $("#class2_button").addClass("selected_button");
-//     $("#class1_button").removeClass("selected_button");
-// }
-
-
-// // clear add data from the canvas
-// function reset() {
-//     setClass1();
-//     points = Array();
-//     percept.reset();
-//     drawAll();
-// }
-
-
-// // adjusts the input the be in a standard (-1, +1) coordinate plane
-// // (translate coordinates from the canvas)... also the y value is 0,
-// // not -1.
-// function scaleInput(X) {
-//     var inputX = (2 * X.x - canvas.width) / canvas.width;
-//     var inputY = -1 * ((2 * X.y - canvas.height) / canvas.height);
-//     var inputCls = X.cls == 1 ? 1 : 0;
-//     INPUT = {x: inputX, y: inputY, cls: inputCls};
-//     return INPUT;
-// }
-
-
-// // when the canvas is clicked, add a dot in that position and redraw
-// function clickHappened(event) {
-//     // compute point location and class and add it to the system
-//     var xPos = Math.floor(event.pageX - $(canvas).position().left);
-//     var yPos = Math.floor(event.pageY - $(canvas).position().top);
-//     X = {x: xPos, y: yPos, cls: selected, predicted: 0};
-//     points.push(X);
-
-//     // compute the perceptron's expected output and train it
-//     INPUT = scaleInput(X);
-//     var output = percept.run(INPUT);
-//     var color = (output >= 0.5) ? "blue" : "red";
-//     $("#output_disp").css("color", color);
-//     $("#output_disp").text(Math.round(output*1000)/1000);
-//     percept.train(INPUT, output);
-
-//     // draw everything
-//     drawAll();
-// }
-
-
-// // use the perceptron to compute the hyperplane and translate it back
-// // to global (canvas) coordinates
-// function getLineY(x) {
-//     x = (2*x - canvas.width) / canvas.width;
-//     var y = percept.hyperplane(x);
-//     y *= -1;
-//     y *= canvas.height;
-//     y += canvas.height;
-//     y /= 2;
-//     return y;
-// }
-
-
-// // draw the canvas (i.e. draw all the dots and the graph)
-// function drawAll() {
-//     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-//     // draw the points
-//     for(var i=0; i<points.length; i++) {
-//         var X = points[i];
-
-//         ctx.fillStyle = ((X.cls == 1) ? "blue" : "red");
-//         ctx.beginPath();
-//         ctx.arc(X.x, X.y, RADIUS, 0, 2*Math.PI);
-//         ctx.fill();
-
+    function redrawCanvas() {
+      const canvas = getCanvasObject();
+      if (canvas == null) {
+        return;
+      }
+      const context = canvas.getContext("2d");
+      context.clearRect(0, 0, canvas.width, canvas.height);
+      dataPoints.forEach(dataPoint => {
+        context.fillStyle = dataPoint.getDataClass() === BLUE_CLASS_NAME ? "blue" : "red";
+        context.beginPath();
+        context.arc(
+          dataPoint.getXCoordinate(),
+          dataPoint.getYCoordinate(),
+          DATA_POINT_RENDER_RADIUS,
+          0, // start arc angle
+          2 * Math.PI, // end arc angle
+        );
+        context.fill();
+      });
 //         // if classified, draw the predicted class this one time
 //         if(X.predicted != 0) {
 //             ctx.strokeStyle = ((X.predicted == 1) ? "blue" : "red");
@@ -251,7 +175,91 @@
 //     ctx.lineTo(canvas.width, getLineY(canvas.width));
 //     ctx.stroke();
 // }
+    }
 
+    function onCanvasClicked(event) {
+      const canvas = getCanvasObject();
+      if (canvas == null) {
+        return;
+      }
+      const dataPoint = new PerceptronDataPoint(
+        event.offsetX,
+        event.offsetY,
+        currentlySelectedTrainingClass,
+      );
+      const predictedValue = perceptron.classify(dataPoint);
+      // TODO: set dataPoint color
+      //     var color = (output >= 0.5) ? "blue" : "red";
+      //     $("#output_disp").css("color", color);
+      //     $("#output_disp").text(Math.round(output*1000)/1000);
+      // TODO: perceptron.train(dataPoint, predictedValue);
+      dataPoints.push(dataPoint);
+      redrawCanvas();
+    }
+
+    function onControlButtonClicked(buttonName) {
+      console.log(buttonName);
+    }
+
+    function onLearningRateChanged(event) {
+      console.log('learning rate changed', event);
+    }
+
+// // get the canvas and draw it for the first time
+// $(document).ready(function() {
+//     // set default values
+//     document.getElementById("learning_rate_box").value = LEARNING_RATE;
+//     // set up the canvas and perceptron
+//     canvas = document.getElementById("perceptron_canvas");
+//     ctx = canvas.getContext("2d");
+//     percept = new Perceptron();
+//     drawAll();
+// });
+
+// // set the current class to positive (dots of that class will be added)
+// function setClass1() {
+//     selected = 1;
+//     $("#class1_button").addClass("selected_button");
+//     $("#class2_button").removeClass("selected_button");
+// }
+
+// // set the current class to negative (dots of that class will be added)
+// function setClass2() {
+//     selected = -1;
+//     $("#class2_button").addClass("selected_button");
+//     $("#class1_button").removeClass("selected_button");
+// }
+
+// // clear add data from the canvas
+// function reset() {
+//     setClass1();
+//     points = Array();
+//     percept.reset();
+//     drawAll();
+// }
+
+// // adjusts the input the be in a standard (-1, +1) coordinate plane
+// // (translate coordinates from the canvas)... also the y value is 0,
+// // not -1.
+// function scaleInput(X) {
+//     var inputX = (2 * X.x - canvas.width) / canvas.width;
+//     var inputY = -1 * ((2 * X.y - canvas.height) / canvas.height);
+//     var inputCls = X.cls == 1 ? 1 : 0;
+//     INPUT = {x: inputX, y: inputY, cls: inputCls};
+//     return INPUT;
+// }
+
+// // use the perceptron to compute the hyperplane and translate it back
+// // to global (canvas) coordinates
+// function getLineY(x) {
+//     x = (2*x - canvas.width) / canvas.width;
+//     var y = percept.hyperplane(x);
+//     y *= -1;
+//     y *= canvas.height;
+//     y += canvas.height;
+//     y /= 2;
+//     return y;
+// }
 
 // // train the perceptron on all existing points again
 // // this may increase the accuracy of the classification
@@ -266,13 +274,11 @@
 //     drawAll();
 // }
 
-
 // // same as train, but resets the perceptron first
 // function retrain() {
 //     percept.reset();
 //     train();
 // }
-
 
 // // run through all the points and have the perceptron classify them visually
 // function classify() {
@@ -285,7 +291,6 @@
 
 //     drawAll();
 // }
-
 
 // // set the learning rate of the perceptron
 // function setLearningRate() {
@@ -307,7 +312,8 @@
       id="PerceptronCanvas"
       width="860"
       height="540"
-      onmousedown="onCanvasClicked(event);">
+      onload="onCanvasLoad()"
+      onmousedown="onCanvasClicked(event)">
       Your browser does not support the canvas element.
     </canvas>
   </p>
@@ -351,7 +357,7 @@
     Learning Rate:
     <input
       type="text"
-      onkeypress="onLearningRateChanged(event);"/>
+      onkeypress="onLearningRateChanged(event)"/>
   </p>
   <p>
     Perceptron output value for last point added:
