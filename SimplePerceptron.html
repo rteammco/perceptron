@@ -1,6 +1,34 @@
 <html>
 
 <head>
+  <style>
+    #PerceptronCanvas {
+      background-color: #000000;
+    }
+
+    #PerceptronBlueClassButton {
+      color: blue;
+    }
+
+    #PerceptronRedClassButton {
+      color: red;
+    }
+
+    .PerceptronTrainButton {
+      color: green;
+    }
+
+    .PerceptronClassifyButton {
+      color: #0088AA;
+    }
+
+    .PerceptronControlButton {
+      font-weight: bold;
+      margin-right: 20px;
+      width: 110px;
+    }
+  </style>
+
   <script type="text/javascript">
     // Global variables:
     const RADIUS = 3;
@@ -87,6 +115,17 @@
     const x = new Perceptron();
     x.run();
 
+    function onCanvasClicked(event) {
+      console.log('clicked canvas', event);
+    }
+
+    function onControlButtonClicked(buttonName) {
+      console.log(buttonName);
+    }
+
+    function onLearningRateChanged(event) {
+      console.log('learning rate changed', event);
+    }
 
 // // get the canvas and draw it for the first time
 // $(document).ready(function() {
@@ -262,48 +301,65 @@
 </head>
 
 <body>
-  <p>Hello, world</p>
-  <!-- Perceptron Simulation Canvas -->
-<p><canvas id="perceptron_canvas" width="860" height="540"
-    style="background: #FFFFFF" onmousedown="clickHappened(event);">
-Your browser does not support the canvas element.
-</canvas></p>
-
-<p>
-  <button id="class1_button" class="selected_button" onclick="setClass1();"
-      title="Class 1" style="width: 110px;">
-    <font color="#0000FF"><b><span id="on_or_off">Blue</span></b></font></button>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <button id="class2_button" onclick="setClass2();"
-      title="Class 2" style="width: 110px;">
-    <font color="#FF0000"><b>Red</b></font></button>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <button onclick="reset();" title="Clear Screen and Reset" style="width: 110px;">
-    <font color="#000000"><b>Reset</b></font></button>
-</p>
-<p>
-    <button onclick="train();" title="Train the Perceptron" style="width: 110px;">
-    <font color="#338833"><b>Train</b></font></button>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-    <button onclick="retrain();" title="Clear Weights and Re-train the Perceptron" style="width: 110px;">
-    <font color="#338833"><b>Retrain</b></font></button>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-    <button onclick="classify();" title="Classify All Points" style="width: 110px;">
-    <font color="#0088AA"><b>Classify</b></font></button>
-</p>
-<p>
-    Learning Rate: <input type="text" id="learning_rate_box" onchange="setLearningRate();" />
-</p>
-
-<p>
+  <h1>Simple Perceptron Demo</h1>
+  <p>
+    <canvas
+      id="PerceptronCanvas"
+      width="860"
+      height="540"
+      onmousedown="onCanvasClicked(event);">
+      Your browser does not support the canvas element.
+    </canvas>
+  </p>
+  <p>
+    <button
+      class="PerceptronControlButton"
+      id="PerceptronBlueClassButton"
+      onclick="onControlButtonClicked('Blue')">
+      Blue
+    </button>
+    <button
+      class="PerceptronControlButton"
+      id="PerceptronRedClassButton"
+      onclick="onControlButtonClicked('Red')">
+      Red
+    </button>
+    <button
+      class="PerceptronControlButton"
+      onclick="onControlButtonClicked('Reset')">
+      Reset
+    </button>
+  </p>
+  <p>
+    <button
+      class="PerceptronControlButton PerceptronTrainButton"
+      onclick="onControlButtonClicked('Train')">
+      Train
+    </button>
+    <button
+      class="PerceptronControlButton PerceptronTrainButton"
+      onclick="onControlButtonClicked('Retrain')">
+      Retrain
+    </button>
+    <button
+      class="PerceptronControlButton PerceptronClassifyButton"
+      onclick="onControlButtonClicked('Classify')">
+      Classify
+    </button>
+  </p>
+  <p>
+    Learning Rate:
+    <input
+      type="text"
+      onkeypress="onLearningRateChanged(event);"/>
+  </p>
+  <p>
     Perceptron output value for last point added:
-    <span id="output_disp">---</span>
-</p>
-
-<p>
+    <span id="PerceptronOutputDisplay">?</span>
+  </p>
+  <p>
     <b>Hint:</b> Bad results? Try clicking the "Train" button several times!
-</p>
-<br>
+  </p>
 </body>
 
 </html>
