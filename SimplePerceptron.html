@@ -202,33 +202,66 @@
     function onControlButtonClicked(buttonName) {
       switch(buttonName) {
         case 'Blue':
-          currentlySelectedTrainingClass = BLUE_CLASS_VALUE;
-          document.getElementById('PerceptronBlueClassButton')
-            .classList.add('PerceptronActiveClassButton');
-          document.getElementById('PerceptronRedClassButton')
-            .classList.remove('PerceptronActiveClassButton');
+          onBlueClassSelected();
           break;
         case 'Red':
-          currentlySelectedTrainingClass = RED_CLASS_VALUE;
-          document.getElementById('PerceptronRedClassButton')
-            .classList.add('PerceptronActiveClassButton');
-          document.getElementById('PerceptronBlueClassButton')
-            .classList.remove('PerceptronActiveClassButton');
+          onRedClassSelected();
           break;
         case 'Reset':
-          dataPoints = [];
-          perceptron.reset();
-          redrawCanvas();
+          onResetButtonClicked();
           break;
         case 'Train':
+          trainPerceptronOnAllDataPoints();
           break;
         case 'Retrain':
+          onRetrainButtonClicked();
           break;
         case 'Classify':
+          onClassifyButtonClicked();
           break;
         default:
           break;
       }
+    }
+
+    function onBlueClassSelected() {
+      currentlySelectedTrainingClass = BLUE_CLASS_VALUE;
+      document.getElementById('PerceptronBlueClassButton').classList.add('PerceptronActiveClassButton');
+      document.getElementById('PerceptronRedClassButton').classList.remove('PerceptronActiveClassButton');
+    }
+
+    function onRedClassSelected() {
+      currentlySelectedTrainingClass = RED_CLASS_VALUE;
+      document.getElementById('PerceptronRedClassButton').classList.add('PerceptronActiveClassButton');
+      document.getElementById('PerceptronBlueClassButton').classList.remove('PerceptronActiveClassButton');
+    }
+
+    function onResetButtonClicked() {
+      dataPoints = [];
+      perceptron.reset();
+      redrawCanvas();
+    }
+
+    function trainPerceptronOnAllDataPoints() {
+      dataPoints.forEach(dataPoint => {
+        const predictedValue = perceptron.classify(dataPoint);
+        perceptron.train(dataPoint, predictedValue);
+      });
+      redrawCanvas();
+    }
+
+    function onRetrainButtonClicked() {
+      perceptron.reset();
+      trainPerceptronOnAllDataPoints();
+    }
+
+    function onClassifyButtonClicked() {
+      dataPoints.forEach(dataPoint => {
+        const predictedValue = perceptron.classify(dataPoint);
+        const predictedClass = predictedValue >= 0.5 ? BLUE_CLASS_VALUE : RED_CLASS_VALUE;
+        dataPoint.setPredictedClass(predictedClass);
+      });
+      redrawCanvas();
     }
 
     function onLearningRateChanged(event) {
@@ -240,37 +273,6 @@
 //     document.getElementById("learning_rate_box").value = LEARNING_RATE;
 //     redrawCanvas()
 // });
-// // train the perceptron on all existing points again
-// // this may increase the accuracy of the classification
-// function train() {
-//     for(var i=0; i<points.length; i++) {
-//         var X = points[i];
-//         INPUT = scaleInput(X);
-//         var output = percept.run(INPUT);
-//         percept.train(INPUT, output);
-//     }
-
-//     drawAll();
-// }
-
-// // same as train, but resets the perceptron first
-// function retrain() {
-//     percept.reset();
-//     train();
-// }
-
-// // run through all the points and have the perceptron classify them visually
-// function classify() {
-//     for(var i=0; i<points.length; i++) {
-//         var X = points[i];
-//         INPUT = scaleInput(X);
-//         var output = percept.run(INPUT);
-//         X.predicted = (output >= 0.5) ? 1 : -1;
-//     }
-
-//     drawAll();
-// }
-
 // // set the learning rate of the perceptron
 // function setLearningRate() {
 //     var rate = document.getElementById("learning_rate_box").value;
