@@ -43,19 +43,6 @@
     let currentlySelectedTrainingClass = BLUE_CLASS_NAME;
     let dataPoints = [];
 
-    function getCanvasObject() {
-      return document.getElementById("PerceptronCanvas");
-    }
-
-    function getCanvasDimensions() {
-      const canvas = getCanvasObject();
-      if (canvas != null) {
-        return { canvasWidth: canvas.width, canvasHeight: canvas.height };
-      } else {
-        return { canvasWidth: 0, canvasHeight: 0 };
-      }
-    }
-
     class PerceptronDataPoint {
       constructor(xCoordinate, yCoordinate, dataClass, predictedClass = null) {
         this._xCoordinate = xCoordinate;
@@ -96,7 +83,11 @@
         this._wY = 1;
       }
       classify(dataPoint) {
-        const sum = this._bias + (this._wX * dataPoint.x) + (this._wY * dataPoint.y);
+        const normalizedDataPoint = dataPoint.getNormalizedInput();
+        const sum =
+          this._bias +
+          (this._wX * normalizedDataPoint.x) +
+          (this._wY * normalizedDataPoint.y);
         const output = 1 / (1 + Math.exp(-sum)); // sigmoid
         return output;
       }
@@ -130,15 +121,45 @@
     }
     const perceptron = new Perceptron();
 
+    function getCanvasObject() {
+      return document.getElementById('PerceptronCanvas');
+    }
+
+    function getCanvasDimensions() {
+      const canvas = getCanvasObject();
+      if (canvas != null) {
+        return { canvasWidth: canvas.width, canvasHeight: canvas.height };
+      } else {
+        return { canvasWidth: 0, canvasHeight: 0 };
+      }
+    }
+
     function redrawCanvas() {
       const canvas = getCanvasObject();
       if (canvas == null) {
         return;
       }
-      const context = canvas.getContext("2d");
+      const context = canvas.getContext('2d');
       context.clearRect(0, 0, canvas.width, canvas.height);
+      // Draw the graph quadrants:
+      context.strokeStyle = 'black';
+      context.beginPath();
+      context.moveTo(0, canvas.height / 2);
+      context.lineTo(canvas.width, canvas.height / 2);
+      context.stroke();
+      context.beginPath();
+      context.moveTo(canvas.width / 2, 0);
+      context.lineTo(canvas.width / 2, canvas.height);
+      context.stroke();
+      // TODO: Draw the classification line if possible:
+      // context.strokeStyle = "orange";
+      // context.beginPath();
+      // context.moveTo(0, getLineY(0));
+      // context.lineTo(canvas.width, getLineY(canvas.width));
+      // context.stroke();
+      // Draw the data points:
       dataPoints.forEach(dataPoint => {
-        context.fillStyle = dataPoint.getDataClass() === BLUE_CLASS_NAME ? "blue" : "red";
+        context.fillStyle = dataPoint.getDataClass() === BLUE_CLASS_NAME ? 'blue' : 'red';
         context.beginPath();
         context.arc(
           dataPoint.getXCoordinate(),
@@ -148,35 +169,20 @@
           2 * Math.PI, // end arc angle
         );
         context.fill();
+        const predictedClass = dataPoint.getPredictedClass();
+        if (predictedClass != null) {
+          context.strokeStyle = predictedClass === BLUE_CLASS_NAME ? 'blue' : 'red';
+          context.beginPath();
+          context.arc(
+            dataPoint.getXCoordinate(),
+            dataPoint.getYCoordinate(),
+            DATA_POINT_RENDER_RADIUS * 2,
+            0,
+            2 * Math.PI,
+          );
+          context.stroke();
+        }
       });
-//         // if classified, draw the predicted class this one time
-//         if(X.predicted != 0) {
-//             ctx.strokeStyle = ((X.predicted == 1) ? "blue" : "red");
-//             ctx.beginPath();
-//             ctx.arc(X.x, X.y, RADIUS*2, 0, 2*Math.PI);
-//             ctx.stroke();
-//             X.predicted = 0; // reset prediction
-//         }
-//     }
-
-//     // draw the graph quadrants
-//     ctx.strokeStyle = "black";
-//     ctx.beginPath();
-//     ctx.moveTo(0, canvas.height/2);
-//     ctx.lineTo(canvas.width, canvas.height/2);
-//     ctx.stroke();
-//     ctx.beginPath();
-//     ctx.moveTo(canvas.width/2, 0);
-//     ctx.lineTo(canvas.width/2, canvas.height);
-//     ctx.stroke();
-
-//     // draw the classification line if possible
-//     ctx.strokeStyle = "orange";
-//     ctx.beginPath();
-//     ctx.moveTo(0, getLineY(0));
-//     ctx.lineTo(canvas.width, getLineY(canvas.width));
-//     ctx.stroke();
-// }
     }
 
     function onCanvasClicked(event) {
@@ -190,10 +196,11 @@
         currentlySelectedTrainingClass,
       );
       const predictedValue = perceptron.classify(dataPoint);
-      // TODO: set dataPoint color
-      //     var color = (output >= 0.5) ? "blue" : "red";
-      //     $("#output_disp").css("color", color);
-      //     $("#output_disp").text(Math.round(output*1000)/1000);
+      const predictedClass = predictedValue >= 0.5 ? BLUE_CLASS_NAME : RED_CLASS_NAME;
+      const predictionDisplay = document.getElementById('PerceptronOutputDisplay');
+      predictionDisplay.textContent = Math.round(predictedValue * 1000) / 1000;
+      // TODO: predictionDisplay.setAttribute('class', 'color: blue');
+      dataPoint.setPredictedClass(predictedClass);
       // TODO: perceptron.train(dataPoint, predictedValue);
       dataPoints.push(dataPoint);
       redrawCanvas();
@@ -238,6 +245,7 @@
 // // get the canvas and draw it for the first time
 // $(document).ready(function() {
 //     document.getElementById("learning_rate_box").value = LEARNING_RATE;
+//     redrawCanvas()
 // });
 // // use the perceptron to compute the hyperplane and translate it back
 // // to global (canvas) coordinates
