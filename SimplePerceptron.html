@@ -32,6 +32,14 @@
       width: 110px;
     }
 
+    .PerceptronBlueClassColor {
+      color: blue;
+    }
+
+    .PerceptronRedClassColor {
+      color: red;
+    }
+
     .PerceptronInputAreaError {
       color: red;
       font-style: italic;
@@ -203,7 +211,14 @@
       );
       const { predictedValue, predictedClass } = perceptron.classify(dataPoint);
       const predictionDisplay = document.getElementById('PerceptronOutputDisplay');
-      predictionDisplay.textContent = Math.round(predictedValue * 1000) / 1000;
+      const classIndicator =
+        ' (<span class="' +
+        (predictedClass === BLUE_CLASS_VALUE ? 'PerceptronBlueClassColor' : 'PerceptronRedClassColor') +
+        '">' +
+        (predictedClass === BLUE_CLASS_VALUE ? 'Blue' : 'Red') +
+        '</span>)';
+      console.log(classIndicator)
+      predictionDisplay.innerHTML = (Math.round(predictedValue * 1000) / 1000) + classIndicator;
       // TODO: predictionDisplay.setAttribute('class', 'color: blue');
       dataPoint.setPredictedClass(predictedClass);
       perceptron.train(dataPoint, predictedValue);
