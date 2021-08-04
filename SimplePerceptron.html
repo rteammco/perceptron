@@ -34,14 +34,9 @@
   </style>
 
   <script type="text/javascript">
-    // Global variables:
     const DATA_POINT_RENDER_RADIUS = 4;
-    const LEARNING_RATE = 0.5;
     const RED_CLASS_VALUE = 0;
     const BLUE_CLASS_VALUE = 1;
-
-    let currentlySelectedTrainingClass = BLUE_CLASS_VALUE;
-    let dataPoints = [];
 
     class PerceptronDataPoint {
       constructor(xCoordinate, yCoordinate, dataClass, predictedClass = null) {
@@ -80,10 +75,11 @@
 
     // Perceptron object keeps track of its weights and provides output when given input.
     class Perceptron {
-      constructor() {
+      constructor(learningRate = 0.5) {
         this._bias = 0;
         this._wX = 1;
         this._wY = 1;
+        this._learningRate = learningRate;
       }
       classify(dataPoint) {
         const normalizedDataPoint = dataPoint.getNormalizedDataPoint();
@@ -91,15 +87,17 @@
           this._bias +
           (this._wX * normalizedDataPoint.getXCoordinate()) +
           (this._wY * normalizedDataPoint.getYCoordinate());
-        return 1 / (1 + Math.exp(-1 * sum)); // sigmoid
+        const predictedValue = 1 / (1 + Math.exp(-1 * sum)); // sigmoid
+        const predictedClass = predictedValue >= 0.5 ? 1 : 0;
+        return { predictedValue, predictedClass };
       }
       train(dataPoint, predictedValue) {
         const normalizedDataPoint = dataPoint.getNormalizedDataPoint();
         const expectedValue = normalizedDataPoint.getDataClass();
         const difference = expectedValue - predictedValue;
-        this._bias += LEARNING_RATE * difference;
-        this._wX += LEARNING_RATE * difference * normalizedDataPoint.getXCoordinate();
-        this._wY += LEARNING_RATE * difference * normalizedDataPoint.getYCoordinate();
+        this._bias += this._learningRate * difference;
+        this._wX += this._learningRate * difference * normalizedDataPoint.getXCoordinate();
+        this._wY += this._learningRate * difference * normalizedDataPoint.getYCoordinate();
       }
       getHyperplaneYCoordinateAt(canvasXCoordinate) {
         const canvas = getCanvasObject();
@@ -116,7 +114,13 @@
         this._wX = 1;
         this._wY = 1;
       }
+      setLearningRate(learningRate) {
+        this._learningRate = learningRate;
+      }
     }
+
+    let dataPoints = [];
+    let currentlySelectedTrainingClass = BLUE_CLASS_VALUE;
     const perceptron = new Perceptron();
 
     function getCanvasObject() {
@@ -188,8 +192,7 @@
         event.offsetY,
         currentlySelectedTrainingClass,
       );
-      const predictedValue = perceptron.classify(dataPoint);
-      const predictedClass = predictedValue >= 0.5 ? BLUE_CLASS_VALUE : RED_CLASS_VALUE;
+      const { predictedValue, predictedClass } = perceptron.classify(dataPoint);
       const predictionDisplay = document.getElementById('PerceptronOutputDisplay');
       predictionDisplay.textContent = Math.round(predictedValue * 1000) / 1000;
       // TODO: predictionDisplay.setAttribute('class', 'color: blue');
@@ -244,7 +247,7 @@
 
     function trainPerceptronOnAllDataPoints() {
       dataPoints.forEach(dataPoint => {
-        const predictedValue = perceptron.classify(dataPoint);
+        const { predictedValue, _predictedClass } = perceptron.classify(dataPoint);
         perceptron.train(dataPoint, predictedValue);
       });
       redrawCanvas();
@@ -257,8 +260,7 @@
 
     function onClassifyButtonClicked() {
       dataPoints.forEach(dataPoint => {
-        const predictedValue = perceptron.classify(dataPoint);
-        const predictedClass = predictedValue >= 0.5 ? BLUE_CLASS_VALUE : RED_CLASS_VALUE;
+        const { _predictedValue, predictedClass } = perceptron.classify(dataPoint);
         dataPoint.setPredictedClass(predictedClass);
       });
       redrawCanvas();
