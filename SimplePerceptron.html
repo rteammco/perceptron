@@ -119,6 +119,9 @@
         this._wX = 1;
         this._wY = 1;
       }
+      getLearningRate() {
+        return this._learningRate;
+      }
       setLearningRate(learningRate) {
         this._learningRate = learningRate;
       }
@@ -127,6 +130,11 @@
     let dataPoints = [];
     let currentlySelectedTrainingClass = BLUE_CLASS_VALUE;
     const perceptron = new Perceptron();
+
+    function onPageLoadSetup() {
+      document.getElementById('PerceptronLearningRateInput').value = perceptron.getLearningRate().toString();
+      redrawCanvas();
+    }
 
     function getCanvasObject() {
       return document.getElementById('PerceptronCanvas');
@@ -277,17 +285,10 @@
         document.getElementById('PerceptronLearningRateSection').classList.add('PerceptronInputAreaError');
       }
     }
-
-// // get the canvas and draw it for the first time
-// $(document).ready(function() {
-//     document.getElementById("learning_rate_box").value = LEARNING_RATE;
-//     redrawCanvas()
-// });
-
   </script>
 </head>
 
-<body>
+<body onload="onPageLoadSetup()">
   <h1>Simple Perceptron Demo</h1>
   <p>
     <canvas
