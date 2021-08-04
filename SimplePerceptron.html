@@ -31,6 +31,11 @@
       margin-right: 20px;
       width: 110px;
     }
+
+    .PerceptronInputAreaError {
+      color: red;
+      font-style: italic;
+    }
   </style>
 
   <script type="text/javascript">
@@ -149,10 +154,6 @@
       context.beginPath();
       context.moveTo(0, perceptron.getHyperplaneYCoordinateAt(0));
       context.lineTo(canvas.width, perceptron.getHyperplaneYCoordinateAt(canvas.width));
-      console.log(
-        perceptron.getHyperplaneYCoordinateAt(0),
-        perceptron.getHyperplaneYCoordinateAt(canvas.width),
-      );
       context.stroke();
       // Draw the data points:
       dataPoints.forEach(dataPoint => {
@@ -266,8 +267,15 @@
       redrawCanvas();
     }
 
-    function onLearningRateChanged(event) {
-      console.log('learning rate changed', event);
+    function onLearningRateChanged() {
+      const learningRateInput = document.getElementById('PerceptronLearningRateInput');
+      const decimalNumberRegex = /^\d+(\.\d{1,2})?$/;
+      if (decimalNumberRegex.test(learningRateInput.value)) {
+        perceptron.setLearningRate(parseFloat(learningRateInput.value));
+        document.getElementById('PerceptronLearningRateSection').classList.remove('PerceptronInputAreaError');
+      } else {
+        document.getElementById('PerceptronLearningRateSection').classList.add('PerceptronInputAreaError');
+      }
     }
 
 // // get the canvas and draw it for the first time
@@ -275,15 +283,6 @@
 //     document.getElementById("learning_rate_box").value = LEARNING_RATE;
 //     redrawCanvas()
 // });
-// // set the learning rate of the perceptron
-// function setLearningRate() {
-//     var rate = document.getElementById("learning_rate_box").value;
-//     if(!isNaN(rate)) {
-//         rate = parseFloat(rate);
-//         if(rate >= 0 && rate <= 1)
-//             LEARNING_RATE = rate;
-//     }
-// }
 
   </script>
 </head>
@@ -336,11 +335,12 @@
       Classify
     </button>
   </p>
-  <p>
+  <p id="PerceptronLearningRateSection">
     Learning Rate:
     <input
+      id="PerceptronLearningRateInput"
       type="text"
-      onkeypress="onLearningRateChanged(event)"/>
+      onchange="onLearningRateChanged()"/>
   </p>
   <p>
     Perceptron output value for last point added:
