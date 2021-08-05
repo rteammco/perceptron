@@ -7,6 +7,8 @@ by classifying dots as either blue or red.
 This demo is contained entirely in a single file for convenience, but the JS/CSS parts can easily be moved to separate files for new projects.
 Instructions for using the perceptron will be rendered on the web browser along with the demo.
 
+The included video might be helpful for getting started to see the demo in action.
+
 ## Licence - MIT
 
 Copyright 2021 Richard Teammco
