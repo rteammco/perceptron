@@ -14,6 +14,12 @@
       color: red;
     }
 
+    .PerceptronControlButton {
+      font-weight: bold;
+      margin-right: 20px;
+      width: 110px;
+    }
+
     .PerceptronActiveClassButton {
       background-color: yellow;;
     }
@@ -24,12 +30,6 @@
 
     .PerceptronClassifyButton {
       color: #0088AA;
-    }
-
-    .PerceptronControlButton {
-      font-weight: bold;
-      margin-right: 20px;
-      width: 110px;
     }
 
     .PerceptronBlueClassColor {
@@ -219,7 +219,6 @@
         '</span>)';
       console.log(classIndicator)
       predictionDisplay.innerHTML = (Math.round(predictedValue * 1000) / 1000) + classIndicator;
-      // TODO: predictionDisplay.setAttribute('class', 'color: blue');
       dataPoint.setPredictedClass(predictedClass);
       perceptron.train(dataPoint, predictedValue);
       dataPoints.push(dataPoint);
@@ -305,6 +304,70 @@
 
 <body onload="onPageLoadSetup()">
   <h1>Simple Perceptron Demo</h1>
+  <h2>Introduction</h2>
+  <p>
+    A <a href="https://en.wikipedia.org/wiki/Perceptron" target="blank">perceptron</a>
+    is very simple linear classification algorithm that can decide between two classes.
+    This demo, written entirely in JavaScript, provides a visual example to how the perceptron
+    works by classifying dots as either blue or red.
+  </p>
+  <h2>How It Works</h2>
+  <p>
+    TODO
+  </p>
+  <h2>Instructions</h2>
+  <ol>
+    <li>
+      The <b>canvas</b> is the big rectangle with the four quadrants below. When you click on it,
+      a <span class="PerceptronBlueClassColor">blue</span> or
+      <span class="PerceptronRedClassColor">red</span> dot will appear, depending on which of the
+      <b class="PerceptronBlueClassColor">Blue</b> or <b class="PerceptronRedClassColor">Red</b>
+      buttons below the <b>canvas</b> are selected. The currently-selected class is
+      <span class="PerceptronActiveClassButton">highlighted</span>, and can be switched at any time.
+    </li>
+    <li>
+      Each dot you add on the <b>canvas</b> also has a <span class="PerceptronBlueClassColor">blue</span>
+      or <span class="PerceptronRedClassColor">red</span> circle around it. This indicates the predicted
+      class by the perceptron. As the perceptron learns, it will get better at predicting. You can also
+      see the exact value the perceptron calculated for the new point below the <b>Learning Rate</b> box.
+      Anything over 0.5 is classified as <span class="PerceptronBlueClassColor">blue</span> and anything
+      under 0.5 is classified as <span class="PerceptronRedClassColor">red</span>.
+    </li>
+    <li>
+      The line is the perceptron's linear classification cutoff. Initially, any point to the top right
+      of the line will classified as <span class="PerceptronBlueClassColor">blue</span> and any point
+      to the bottom left will be classified as <span class="PerceptronRedClassColor">red</span>,
+      but as the perceptron learns, the line will move in the best possible way to divide the classes.
+    </li>
+    <li>
+      The <b>Reset</b> button removes all points and resets the perceptron.
+    </li>
+    <li>
+      Once you have several points on the <b>canvas</b>, click the
+      <b class="PerceptronTrainButton">Train</b> button to start teaching the perceptron and watch
+      the line move to divide the <span class="PerceptronBlueClassColor">blue</span> and
+      <span class="PerceptronRedClassColor">red</span> dots as best as it can. Keep clicking to
+      run more iterations if it doesn't look good yet!
+      <i>REMEMBER:</i> the perceptron is a linear classifier, so it can never correctly classify
+      points if they can't be divided by a straight line.
+    </li>
+    <li>
+      The <b class="PerceptronTrainButton">Retrain</b> simply resets the perceptron and runs a single
+      training iteration on it from scratch. This is useful to see the learning process again on
+      the same data set (points on the <b>canvas</b>).
+    </li>
+    <li>
+      Finally, click the <b class="PerceptronClassifyButton">Classify</b> button to re-classify all
+      points on the <b>canvas</b> (shown by the circles around the dots).
+    </li>
+    <li>
+      The <b>Learning Rate</b> input is used to adjust the learning rate of the perceptron. It should
+      be a non-negative number. A higher learning rate may get you a good result in fewer training
+      iterations, but it can also be less stable on more complex data sets. Try it out - set a new value
+      and retrain the perceptron!
+    </li>
+  </ol>
+  <h2>Demo</h2>
   <p>
     <canvas
       id="PerceptronCanvas"
