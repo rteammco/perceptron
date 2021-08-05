@@ -217,10 +217,12 @@
         '">' +
         (predictedClass === BLUE_CLASS_VALUE ? 'Blue' : 'Red') +
         '</span>)';
-      console.log(classIndicator)
       predictionDisplay.innerHTML = (Math.round(predictedValue * 1000) / 1000) + classIndicator;
       dataPoint.setPredictedClass(predictedClass);
-      perceptron.train(dataPoint, predictedValue);
+      const liveTrainingCheckbox = document.getElementById('PerceptronLiveTrainingCheckbox');
+      if (liveTrainingCheckbox.checked) {
+        perceptron.train(dataPoint, predictedValue);
+      }
       dataPoints.push(dataPoint);
       redrawCanvas();
     }
@@ -311,10 +313,6 @@
     This demo, written entirely in JavaScript, provides a visual example to how the perceptron
     works by classifying dots as either blue or red.
   </p>
-  <h2>How It Works</h2>
-  <p>
-    TODO
-  </p>
   <h2>Instructions</h2>
   <ol>
     <li>
@@ -365,6 +363,13 @@
       be a non-negative number. A higher learning rate may get you a good result in fewer training
       iterations, but it can also be less stable on more complex data sets. Try it out - set a new value
       and retrain the perceptron!
+    </li>
+    <li>
+      You can select the <b>Live Training</b> checkbox to see the perceptron get trained on each
+      new input in real time. If selected, the perceptron will adjust itself slightly based on every
+      new point added to the <b>canvas</b> right away. You can still
+      <b class="PerceptronTrainButton">Train</b> or <b class="PerceptronTrainButton">Retrain</b> it
+      later.
     </li>
   </ol>
   <h2>Demo</h2>
@@ -424,6 +429,10 @@
   <p>
     Perceptron output value for last point added:
     <span id="PerceptronOutputDisplay">?</span>
+  </p>
+  <p>
+    Live Training: run a training iteraction every time a new point is added?
+    <input id="PerceptronLiveTrainingCheckbox" type="checkbox"/>
   </p>
   <p>
     <b>Hint:</b> Bad results? Try clicking the "Train" button several times!
