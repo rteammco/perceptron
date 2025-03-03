@@ -1,0 +1,332 @@
+<html>
+
+<head>
+  <style>
+    /* #PerceptronCanvas {
+      border: 3px solid black;
+    }
+
+    #PerceptronBlueClassButton {
+      color: blue;
+    }
+
+    #PerceptronRedClassButton {
+      color: red;
+    }
+
+    .PerceptronControlButton {
+      font-weight: bold;
+      margin-right: 20px;
+      width: 110px;
+    }
+
+    .PerceptronActiveClassButton {
+      background-color: yellow;;
+    }
+
+    .PerceptronTrainButton {
+      color: green;
+    }
+
+    .PerceptronClassifyButton {
+      color: #0088AA;
+    }
+
+    .PerceptronBlueClassColor {
+      color: blue;
+    }
+
+    .PerceptronRedClassColor {
+      color: red;
+    }
+
+    .PerceptronInputAreaError {
+      color: red;
+      font-style: italic;
+    } */
+  </style>
+
+  <script type="text/javascript">
+    // const DATA_POINT_RENDER_RADIUS = 4;
+    // const RED_CLASS_VALUE = 0;
+    // const BLUE_CLASS_VALUE = 1;
+
+    // class PerceptronDataPoint {
+    //   constructor(xCoordinate, yCoordinate, dataClass, predictedClass = null) {
+    //     this._xCoordinate = xCoordinate;
+    //     this._yCoordinate = yCoordinate;
+    //     this._dataClass = dataClass;
+    //     this._predictedClass = predictedClass;
+    //   }
+    //   getDataClass() {
+    //     return this._dataClass;
+    //   }
+    //   getXCoordinate() {
+    //     return this._xCoordinate;
+    //   }
+    //   getYCoordinate() {
+    //     return this._yCoordinate;
+    //   }
+    //   setPredictedClass(predictedClass) {
+    //     this._predictedClass = predictedClass;
+    //   }
+    //   getPredictedClass() {
+    //     return this._predictedClass;
+    //   }
+    //   // Returns the coordinates such that they are normalized between -1 and 1
+    //   // relative to their pixel position on the 2D canvas.
+    //   getNormalizedDataPoint() {
+    //     const canvas = getCanvasObject();
+    //     if (canvas == null) {
+    //       return this;
+    //     }
+    //     const scaledX = (2 * this._xCoordinate - canvas.width) / canvas.width;
+    //     const scaledY = -1 * ((2 * this._yCoordinate - canvas.height) / canvas.height);
+    //     return new PerceptronDataPoint(scaledX, scaledY, this._dataClass, this._predictedClass);
+    //   }
+    // }
+
+    // // Perceptron object keeps track of its weights and provides output when given input.
+    // class Perceptron {
+    //   constructor(learningRate = 0.5) {
+    //     this._bias = 0;
+    //     this._wX = 1;
+    //     this._wY = 1;
+    //     this._learningRate = learningRate;
+    //   }
+    //   classify(dataPoint) {
+    //     const normalizedDataPoint = dataPoint.getNormalizedDataPoint();
+    //     const sum =
+    //       this._bias +
+    //       (this._wX * normalizedDataPoint.getXCoordinate()) +
+    //       (this._wY * normalizedDataPoint.getYCoordinate());
+    //     const predictedValue = 1 / (1 + Math.exp(-1 * sum)); // sigmoid
+    //     const predictedClass = predictedValue >= 0.5 ? 1 : 0;
+    //     return { predictedValue, predictedClass };
+    //   }
+    //   train(dataPoint, predictedValue) {
+    //     const normalizedDataPoint = dataPoint.getNormalizedDataPoint();
+    //     const expectedValue = normalizedDataPoint.getDataClass();
+    //     const difference = expectedValue - predictedValue;
+    //     this._bias += this._learningRate * difference;
+    //     this._wX += this._learningRate * difference * normalizedDataPoint.getXCoordinate();
+    //     this._wY += this._learningRate * difference * normalizedDataPoint.getYCoordinate();
+    //   }
+    //   getHyperplaneYCoordinateAt(canvasXCoordinate) {
+    //     const canvas = getCanvasObject();
+    //     if (canvas == null) {
+    //       return 0;
+    //     }
+    //     const scaledX = (2 * canvasXCoordinate - canvas.width) / canvas.width;
+    //     const scaledY = (-1 * this._wX * scaledX - this._bias) / this._wY
+    //     const canvasYCoordinate = (-1 * scaledY * canvas.height + canvas.height) / 2;
+    //     return canvasYCoordinate;
+    //   }
+    //   reset() {
+    //     this._bias = 0;
+    //     this._wX = 1;
+    //     this._wY = 1;
+    //   }
+    //   getLearningRate() {
+    //     return this._learningRate;
+    //   }
+    //   setLearningRate(learningRate) {
+    //     this._learningRate = learningRate;
+    //   }
+    // }
+
+    // let dataPoints = [];
+    // let currentlySelectedTrainingClass = BLUE_CLASS_VALUE;
+    // const perceptron = new Perceptron();
+
+    // function onPageLoadSetup() {
+    //   document.getElementById('PerceptronLearningRateInput').value = perceptron.getLearningRate().toString();
+    //   redrawCanvas();
+    // }
+
+    // function getCanvasObject() {
+    //   return document.getElementById('PerceptronCanvas');
+    // }
+
+    // function redrawCanvas() {
+    //   const canvas = getCanvasObject();
+    //   if (canvas == null) {
+    //     return;
+    //   }
+    //   const context = canvas.getContext('2d');
+    //   context.clearRect(0, 0, canvas.width, canvas.height);
+    //   // Draw the graph quadrants:
+    //   context.strokeStyle = 'black';
+    //   context.beginPath();
+    //   context.moveTo(0, canvas.height / 2);
+    //   context.lineTo(canvas.width, canvas.height / 2);
+    //   context.stroke();
+    //   context.beginPath();
+    //   context.moveTo(canvas.width / 2, 0);
+    //   context.lineTo(canvas.width / 2, canvas.height);
+    //   context.stroke();
+    //   // Draw the classification line if possible:
+    //   context.strokeStyle = "orange";
+    //   context.beginPath();
+    //   context.moveTo(0, perceptron.getHyperplaneYCoordinateAt(0));
+    //   context.lineTo(canvas.width, perceptron.getHyperplaneYCoordinateAt(canvas.width));
+    //   context.stroke();
+    //   // Draw the data points:
+    //   dataPoints.forEach(dataPoint => {
+    //     context.fillStyle = dataPoint.getDataClass() === BLUE_CLASS_VALUE ? 'blue' : 'red';
+    //     context.beginPath();
+    //     context.arc(
+    //       dataPoint.getXCoordinate(),
+    //       dataPoint.getYCoordinate(),
+    //       DATA_POINT_RENDER_RADIUS,
+    //       0, // start arc angle
+    //       2 * Math.PI, // end arc angle
+    //     );
+    //     context.fill();
+    //     const predictedClass = dataPoint.getPredictedClass();
+    //     if (predictedClass != null) {
+    //       context.strokeStyle = predictedClass === BLUE_CLASS_VALUE ? 'blue' : 'red';
+    //       context.beginPath();
+    //       context.arc(
+    //         dataPoint.getXCoordinate(),
+    //         dataPoint.getYCoordinate(),
+    //         DATA_POINT_RENDER_RADIUS * 2,
+    //         0,
+    //         2 * Math.PI,
+    //       );
+    //       context.stroke();
+    //     }
+    //   });
+    // }
+
+    // function onCanvasClicked(event) {
+    //   const canvas = getCanvasObject();
+    //   if (canvas == null) {
+    //     return;
+    //   }
+    //   const dataPoint = new PerceptronDataPoint(
+    //     event.offsetX,
+    //     event.offsetY,
+    //     currentlySelectedTrainingClass,
+    //   );
+    //   const { predictedValue, predictedClass } = perceptron.classify(dataPoint);
+    //   const predictionDisplay = document.getElementById('PerceptronOutputDisplay');
+    //   const classIndicator =
+    //     ' (<span class="' +
+    //     (predictedClass === BLUE_CLASS_VALUE ? 'PerceptronBlueClassColor' : 'PerceptronRedClassColor') +
+    //     '">' +
+    //     (predictedClass === BLUE_CLASS_VALUE ? 'Blue' : 'Red') +
+    //     '</span>)';
+    //   predictionDisplay.innerHTML = (Math.round(predictedValue * 1000) / 1000) + classIndicator;
+    //   dataPoint.setPredictedClass(predictedClass);
+    //   const liveTrainingCheckbox = document.getElementById('PerceptronLiveTrainingCheckbox');
+    //   if (liveTrainingCheckbox.checked) {
+    //     perceptron.train(dataPoint, predictedValue);
+    //   }
+    //   dataPoints.push(dataPoint);
+    //   redrawCanvas();
+    // }
+
+    // function onControlButtonClicked(buttonName) {
+    //   switch(buttonName) {
+    //     case 'Blue':
+    //       onBlueClassSelected();
+    //       break;
+    //     case 'Red':
+    //       onRedClassSelected();
+    //       break;
+    //     case 'Reset':
+    //       onResetButtonClicked();
+    //       break;
+    //     case 'Train':
+    //       trainPerceptronOnAllDataPoints();
+    //       break;
+    //     case 'Retrain':
+    //       onRetrainButtonClicked();
+    //       break;
+    //     case 'Classify':
+    //       onClassifyButtonClicked();
+    //       break;
+    //     default:
+    //       break;
+    //   }
+    // }
+
+    // function onBlueClassSelected() {
+    //   currentlySelectedTrainingClass = BLUE_CLASS_VALUE;
+    //   document.getElementById('PerceptronBlueClassButton').classList.add('PerceptronActiveClassButton');
+    //   document.getElementById('PerceptronRedClassButton').classList.remove('PerceptronActiveClassButton');
+    // }
+
+    // function onRedClassSelected() {
+    //   currentlySelectedTrainingClass = RED_CLASS_VALUE;
+    //   document.getElementById('PerceptronRedClassButton').classList.add('PerceptronActiveClassButton');
+    //   document.getElementById('PerceptronBlueClassButton').classList.remove('PerceptronActiveClassButton');
+    // }
+
+    // function onResetButtonClicked() {
+    //   dataPoints = [];
+    //   perceptron.reset();
+    //   redrawCanvas();
+    // }
+
+    // function trainPerceptronOnAllDataPoints() {
+    //   dataPoints.forEach(dataPoint => {
+    //     const { predictedValue, _predictedClass } = perceptron.classify(dataPoint);
+    //     perceptron.train(dataPoint, predictedValue);
+    //   });
+    //   redrawCanvas();
+    // }
+
+    // function onRetrainButtonClicked() {
+    //   perceptron.reset();
+    //   trainPerceptronOnAllDataPoints();
+    // }
+
+    // function onClassifyButtonClicked() {
+    //   dataPoints.forEach(dataPoint => {
+    //     const { _predictedValue, predictedClass } = perceptron.classify(dataPoint);
+    //     dataPoint.setPredictedClass(predictedClass);
+    //   });
+    //   redrawCanvas();
+    // }
+
+    // function onLearningRateChanged() {
+    //   const learningRateInput = document.getElementById('PerceptronLearningRateInput');
+    //   const decimalNumberRegex = /^\d+(\.\d{1,2})?$/;
+    //   if (decimalNumberRegex.test(learningRateInput.value)) {
+    //     perceptron.setLearningRate(parseFloat(learningRateInput.value));
+    //     document.getElementById('PerceptronLearningRateSection').classList.remove('PerceptronInputAreaError');
+    //   } else {
+    //     document.getElementById('PerceptronLearningRateSection').classList.add('PerceptronInputAreaError');
+    //   }
+    // }
+  </script>
+</head>
+
+<body onload="onPageLoadSetup()">
+  <h1>Multilayer Perceptron Demo</h1>
+  <h2>Introduction</h2>
+  <h2>Instructions</h2>
+  <ol>
+    <li>
+      Hi
+    </li>
+  </ol>
+  <h2>Demo</h2>
+  <p>
+    <canvas
+      id="MultilayerPerceptronCanvas"
+      width="860"
+      height="540"
+      onload="onCanvasLoad()"
+      onmousedown="onCanvasClicked(event)">
+      Your browser does not support the canvas element.
+    </canvas>
+  </p>
+  <p>
+    Test
+  </p>
+</body>
+
+</html>
